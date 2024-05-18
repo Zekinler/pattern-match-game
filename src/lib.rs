@@ -6,9 +6,11 @@ use itertools::Itertools;
 use ordinal::Ordinal;
 
 const MINIMUM_PATTERN_LENGTH: usize = 4;
-const MAXIMUM_PATTERN_LENGTH: usize = 128;
+const MAXIMUM_PATTERN_LENGTH: usize = 64;
 const MINIMUM_PLAYER_COUNT: usize = 1;
 const MAXIMUM_PLAYER_COUNT: usize = 8;
+
+const CHARACTERS: [char; MAXIMUM_PATTERN_LENGTH] = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','-','_'];
 
 enum InitialGuessError {
     WrongLength,
@@ -82,10 +84,14 @@ impl Game {
             players.push(Player::new(pattern_length));
         }
 
-        Self {
+        let mut game = Self {
             players,
             pattern_length,
-        }
+        };
+
+        game.init();
+
+        game
     }
 
 
@@ -117,7 +123,7 @@ impl Game {
                             matches = player.count_matches();
                         }
 
-                        break println!("\n{} character{} of your guess match{} the pattern.\n", matches, if matches == 1 {""} else {"s"}, if matches == 1 {""} else {"es"})
+                        break println!("")
                     },
                     Err(error) => match error {
                         InitialGuessError::WrongLength => println!("\nPlease try again, {}, does not match the length of the pattern,\n", input),
@@ -157,7 +163,7 @@ impl Game {
 
                     let matches = player.count_matches();
 
-                    println!("{} character{} of your guess match{} the pattern.\n", matches, if matches == 1 {""} else {"s"}, if matches == 1 {""} else {"es"});
+                    println!("{} character{} of your guess match{} the pattern.\n", matches, if matches == 1 {""} else {"s"}, if matches == 1 {"es"} else {""});
 
                     println!("What are the positions of the two characters you want to swap: (2 whole numbers separated by a space)");
 
@@ -272,17 +278,17 @@ impl Player {
 
         let mut rng = rand::thread_rng();
 
-        let mut digits = vec!['0','1','2','3','4','5','6','7','8','9'];
+        let mut chars = CHARACTERS[0..length].to_vec();
 
         for _ in 0..length {
-            let i = rng.gen_range(0..digits.len());
+            let i = rng.gen_range(0..chars.len());
 
-            pattern.push(digits[i]);
+            pattern.push(chars[i]);
             
-            digits.remove(i);
+            chars.remove(i);
 
-            if digits.len() == 0 {
-                digits = vec!['0','1','2','3','4','5','6','7','8','9'];
+            if chars.len() == 0 {
+                chars = CHARACTERS[0..length].to_vec();
             }
         }
 
